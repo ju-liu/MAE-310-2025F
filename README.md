@@ -6,7 +6,7 @@
 - Contact by [email](mailto:liuj36@sustech.edu.cn)
 
 ### Teaching Assistants
-- Mr. Huanyu Hou, [email](12431145@mail.sustech.edu.cn)
+- Mr. Huanyu Hou, [email](12531213@mail.sustech.edu.cn)
 - Miss. Hongzhu Shang, [email](12532290@mail.sustech.edu.cn)
 
 ### Goals
