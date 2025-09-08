@@ -6,7 +6,8 @@
 - Contact by [email](mailto:liuj36@sustech.edu.cn)
 
 ### Teaching Assistants
-- TBA
+- Mr. Huanyu Hou, [email](12431145@mail.sustech.edu.cn)
+- Miss. Hongzhu Shang, [email](12532290@mail.sustech.edu.cn)
 
 ### Goals
 This course aims to give students an in-depth understanding of the finite element method. In particular, the theoretical foundation as well as the implementation of the finite element method will be covered with applications primarily in the static and dynamic analysis of solids and structures.
