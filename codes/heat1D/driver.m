@@ -43,16 +43,14 @@ end
 
 [xi, weight] = Gauss(n_int, -1, 1);
 
-K = zeros(n_eq, n_eq);
+K = spalloc(n_eq, n_eq, 3*n_eq);
 F = zeros(n_eq, 1);
 for ee = 1 : n_el
     k_ele = zeros(n_en, n_en);
     f_ele = zeros(n_en, 1);
-    x_ele = zeros(n_en, 1);
-
-    for aa = 1 : n_en
-        x_ele(aa) = x_coor( IEN(aa, ee) );
-    end
+    
+    % obtain the nodal coordinate
+    x_ele(:) = x_coor( IEN(:, ee) );
 
     for ll = 1 : n_int
         x_l    = 0.0;
