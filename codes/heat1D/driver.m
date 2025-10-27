@@ -1,4 +1,4 @@
-clear all; clc;
+clear all; clc; % clean the memory and the screen
 
 % -----------------------------------------------
 % material parameters and input da
@@ -12,10 +12,13 @@ g = sin(1);       %     u(1) = g
 h = -1;           %  -u,x(0) = h
 
 % define the discretization parameters
-n_el = 5;         % number of elements
-n_en = 2;         % number of element nodes
-n_np = n_el + 1;  % number of nodal points
-hh   = 1 / n_el;  % uniform element length
+pp    = 1;         % degree of shape function
+n_el  = 5;         % number of elements
+n_en  = 2;         % number of element nodes
+n_np  = n_el + 1;  % number of nodal points
+n_eq  = n_np - 1;  % number of equations
+n_int = 2;         % number of quadrature points
+hh    = 1 / n_el;  % uniform element length
 
 x_coor = 0 : hh : 1; % nodal coordinates
 
@@ -31,8 +34,49 @@ end
 ID = 1 : n_np;
 ID(end) = 0;
 
+LM = zeros(n_en, n_el);
+for ee = 1 : n_el
+    for aa = 1 : n_en
+        LM(aa, ee) = ID(IEN(aa, ee));
+    end
+end
 
+[xi, weight] = Gauss(n_int, -1, 1);
 
+K = zeros(n_eq, n_eq);
+F = zeros(n_eq, 1);
+for ee = 1 : n_el
+    k_ele = zeros(n_en, n_en);
+    f_ele = zeros(n_en, 1);
+    x_ele = zeros(n_en, 1);
+
+    for aa = 1 : n_en
+        x_ele(aa) = x_coor( IEN(aa, ee) );
+    end
+
+    for ll = 1 : n_int
+        x_l    = 0.0;
+        dx_dxi = 0.0;
+        for aa = 1 : n_en
+            x_l    = x_l    + x_ele(aa) * PolyShape(pp, aa, xi(ll), 0);
+            dx_dxi = dx_dxi + x_ele(aa) * PolyShape(pp, aa, xi(ll), 1);
+        end
+        dxi_dx = 1.0 / dx_dxi;
+
+        for aa = 1 : n_en
+            f_ele(aa) = f_ele(aa) ...
+                + weight(ll) * PolyShape(pp, aa, xi(ll), 0) ...
+                * f(x_l) * dx_dxi;
+            for bb = 1 : n_en
+                k_ele(aa, bb) = k_ele(aa, bb) ...
+                    + weight(ll) * PolyShape(pp, aa, xi(ll), 1) ...
+                    * PolyShape(pp, bb, xi(ll), 1) * dxi_dx;
+            end % end of bb-loop
+        end     % end of aa-loop
+    end         % end of quadrature loop
+    
+
+end
 
 
 
