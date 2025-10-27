@@ -12,15 +12,14 @@ g = sin(1);       %     u(1) = g
 h = -1;           %  -u,x(0) = h
 
 % define the discretization parameters
-pp    = 1;         % degree of shape function
-n_el  = 5;         % number of elements
-n_en  = 2;         % number of element nodes
-n_np  = n_el + 1;  % number of nodal points
-n_eq  = n_np - 1;  % number of equations
-n_int = 2;         % number of quadrature points
-hh    = 1 / n_el;  % uniform element length
-
-x_coor = 0 : hh : 1; % nodal coordinates
+pp    = 1;              % degree of shape function
+n_el  = 5;              % number of elements
+n_en  = pp+1;           % number of element nodes
+n_np  = n_el * pp + 1;  % number of nodal points
+n_eq  = n_np - 1;       % number of equations
+n_int = 2;              % number of quadrature points
+hh    = 1 / (n_np -1);  % length between two adjacent nodes
+x_coor = 0 : hh : 1;    % nodal coordinates
 
 % Data structures
 IEN = zeros(n_en, n_el);
