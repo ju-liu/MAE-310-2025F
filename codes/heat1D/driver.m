@@ -93,7 +93,10 @@ end % end of element loop
 
 F(1) = F(1) + h;
 
+% Solve the matrix problem K d_temp = F
+d_temp = K \ F;
 
+disp = [d_temp; g];
 
 
 
