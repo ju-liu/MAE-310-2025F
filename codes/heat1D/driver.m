@@ -74,10 +74,24 @@ for ee = 1 : n_el
             end % end of bb-loop
         end     % end of aa-loop
     end         % end of quadrature loop
-    
 
-end
+    for aa = 1 : n_en
+        P = LM(aa, ee);
+        if P > 0
+            F(P) = F(P) + f_ele(aa);
+            for bb = 1 : n_en
+                Q = LM(bb, ee);
+                if Q > 0
+                    K(P,Q) = K(P,Q) + k_ele(aa, bb);
+                else
+                    F(P) = F(P) - k_ele(aa, bb) * g;
+                end
+            end
+        end
+    end
+end % end of element loop
 
+F(1) = F(1) + h;
 
 
 
