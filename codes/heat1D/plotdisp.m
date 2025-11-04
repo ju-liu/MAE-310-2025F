@@ -1,5 +1,5 @@
 function plotdisp(IEN, x_coor, disp, exact_handle)
-
+hasExact = (nargin >= 4) && isa(exact_handle, 'function_handle');
 [n_en, n_el] = size(IEN);
 pp = n_en - 1;
 
@@ -30,13 +30,24 @@ for ee = 1 : n_el
 
     x_sam( (ee-1)*n_sam + ll ) = x_l;
     u_sam( (ee-1)*n_sam + ll ) = u_l;
-    y_sam( (ee-1)*n_sam + ll ) = exact_handle(x_l);
+    if hasExact
+      y_sam( (ee-1)*n_sam + ll ) = exact_handle(x_l);
+    end
   end
 end
 
 clf;
-plot(x_sam, u_sam, '--r','LineWidth',3);
+p1 = plot(x_sam, u_sam, '--r', 'LineWidth', 2);
 hold on;
-plot(x_sam, y_sam, '-k','LineWidth',2);
+
+if hasExact
+  p2 = plot(x_sam, y_sam, '-k', 'LineWidth', 2);
+  legend([p1 p2], {'FEM', 'Exact'}, 'Location', 'best');
+else
+  legend(p1, 'FEM', 'Location', 'best');
+end
+
+xlabel('x'); ylabel('u(x)'); grid on;
+title(sprintf('FEM solution (p=%d, elements=%d)', pp, n_el));
 
 end
