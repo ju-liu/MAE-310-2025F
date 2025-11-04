@@ -34,6 +34,7 @@ for ee = 1 : n_el
   end
 end
 
+clf;
 plot(x_sam, u_sam, '--r','LineWidth',3);
 hold on;
 plot(x_sam, y_sam, '-k','LineWidth',2);
