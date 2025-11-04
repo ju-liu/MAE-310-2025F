@@ -52,8 +52,7 @@ for ee = 1 : n_el
     dxi_dx = 1.0 / dx_dxi;
 
     for aa = 1 : n_en
-      f_ele(aa) = f_ele(aa) + weight(ll) * PolyShape(pp, aa, xi(ll), 0) ...
-        * f(x_l) * dx_dxi;
+      f_ele(aa) = f_ele(aa) + weight(ll) * PolyShape(pp, aa, xi(ll), 0) * f(x_l) * dx_dxi;
       for bb = 1 : n_en
         k_ele(aa, bb) = k_ele(aa, bb) + weight(ll) * PolyShape(pp, aa, xi(ll), 1) ...
           * PolyShape(pp, bb, xi(ll), 1) * dxi_dx;
@@ -82,6 +81,7 @@ F(1) = F(1) + h;
 % Solve the matrix problem K d_temp = F
 d_temp = K \ F;
 
+% put Dirichlet value into the disp vector
 disp = [d_temp; g];
 
 % visulization
