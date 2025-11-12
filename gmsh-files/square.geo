@@ -5,8 +5,8 @@
 // Define a parameter (variable) for the square's side length.
 // Variables in Gmsh are declared with a name and value using '='.
 // You can reuse them later by their name.
-L = 1.0;  // domain length
-ms = 0.2; // characteristic mesh size
+L  = 1.0; // domain length
+ms = 0.5; // characteristic mesh size
 
 //---------------------------------------------------------------
 // Define corner points of the square.
@@ -45,11 +45,11 @@ Plane Surface(1) = {1};
 // These names are used by FEM solvers to identify regions or BCs.
 // Syntax:
 //   Physical Surface("name") = {surfaceIDs};
-//   Physical Curve("name")   = {curveIDs};
+//   Physical Curve("name")   = {lineIDs};
 //---------------------------------------------------------------
 Physical Surface("Domain") = {1};
-Physical Curve("Dirichlet")   = {1,2};
-Physical Curve("Neuman")   = {1,2};
+Physical Curve("Dirichlet")= {1,2,3};
+Physical Curve("Neuman")   = {4};
 
 //---------------------------------------------------------------
 // Mesh options
