@@ -4,8 +4,8 @@ function [qp, qw] = Gauss_tri(num_pts)
 %   [qp, qw] = gauss_triangle(num_pts)
 %
 %   Input:
-%       num_pts : 积分点个数
-%                 可选值: 3, 4, 6, 13, 19, 37
+%       num_pts : number of quadrature points
+%                 3, 4, 6, 13, 19, 37
 %
 %   Output:
 %       qp : [num_pts x 3]  (r,s,t),
