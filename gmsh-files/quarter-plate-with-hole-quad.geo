@@ -4,8 +4,8 @@
 // - Structured (transfinite) mesh with recombined quads
 //---------------------------------------------------------------
 // Parameters
-R   = 0.3; // radius of the rounded corner
-L   = 1.0; // half-length of the square domain
+R  = 0.3; // radius of the rounded corner
+L  = 1.0; // half-length of the square domain
 Nx = 8;   // number of points per transfinite line including endpoints
 Ny = 8;   // number of points per transfinite line including endpoints
 
@@ -31,7 +31,6 @@ Plane Surface(1) = {1};
 
 Curve Loop(2) = {7, -1, -6, -5};
 Plane Surface(2) = {2};
-
 
 Transfinite Line{1,2,4,5} = Nx;
 Transfinite Line{3,6,7}   = Ny;
