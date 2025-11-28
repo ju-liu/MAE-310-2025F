@@ -223,11 +223,11 @@ switch num_pts
         c = 0.126617206172027096933163647918;
         w = 0.015445834210701583817692900053;
         permsABC = [a b c;
-                    a c b;
-                    b a c;
-                    b c a;
-                    c a b;
-                    c b a];
+            a c b;
+            b a c;
+            b c a;
+            c a b;
+            c b a];
         for k = 1:6
             idx       = idx + 1;
             qp(idx,:) = permsABC(k,:);
@@ -239,11 +239,11 @@ switch num_pts
         c = 0.291937506468887771754472382212;
         w = 0.017822989923178661888748319485;
         permsABC = [a b c;
-                    a c b;
-                    b a c;
-                    b c a;
-                    c a b;
-                    c b a];
+            a c b;
+            b a c;
+            b c a;
+            c a b;
+            c b a];
         for k = 1:6
             idx       = idx + 1;
             qp(idx,:) = permsABC(k,:);
@@ -255,11 +255,11 @@ switch num_pts
         c = 0.096506481292159228736516560903;
         w = 0.037038683681384627918546472190;
         permsABC = [a b c;
-                    a c b;
-                    b a c;
-                    b c a;
-                    c a b;
-                    c b a];
+            a c b;
+            b a c;
+            b c a;
+            c a b;
+            c b a];
         for k = 1:6
             idx       = idx + 1;
             qp(idx,:) = permsABC(k,:);
