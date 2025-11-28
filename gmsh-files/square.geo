@@ -6,7 +6,7 @@
 // Variables in Gmsh are declared with a name and value using '='.
 // You can reuse them later by their name.
 L  = 1.0; // domain length
-ms = 1.0/100.0; // characteristic mesh size
+ms = 1.0/2.0; // characteristic mesh size
 
 //---------------------------------------------------------------
 // Define corner points of the square.

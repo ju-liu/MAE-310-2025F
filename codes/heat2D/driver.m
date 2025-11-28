@@ -4,7 +4,7 @@ kappa = 1.0;
 
 % Exact solution
 exact   = @(x,y) x*x*(1-x)*y*(1-y);
-exact_x = @(x,y)  (2*x-3*x*x)*y*(1-y);
+exact_x = @(x,y) (2*x-3*x*x)*y*(1-y);
 exact_y = @(x,y) x*x*(1-x)*(1-2*y);
 
 f = @(x,y) kappa*( (6*x-2)*(y-y*y) + 2*x*x*(1-x) ); % source term
@@ -14,7 +14,7 @@ n_int = 3;
 xi = qp(:,1);
 eta = qp(:,2);
 
-mesh = read_gmsh_mesh("../../gmsh-files/square_100.m");
+mesh = read_gmsh_mesh("../../gmsh-files/square_500.m");
 
 IEN  = mesh.tri;
 x_coor = mesh.coords(:,1);
@@ -60,6 +60,10 @@ for ee = 1 : n_el
     end
 
     detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
+
+    if detJ <= 0
+      error('Non-positive Jacobian at element %d, qp %d', ee, ll);
+    end
 
     for aa = 1 : n_en
       Na = Tri(aa, xi(ll), eta(ll));
@@ -125,7 +129,6 @@ view(2);                 % 2D view; comment out for 3D
 title('FEM Solution');
 xlabel('x'); ylabel('y');
 
-
 % error calculation
 n_int = 19;
 [qp, weight] = Gauss_tri(n_int);
@@ -135,61 +138,52 @@ eta = qp(:,2);
 L2_error  = 0.0;
 H1_error  = 0.0;
 
-for ee = 1:n_el
-  % node indices of element ee
+for ee = 1 : n_el
   x_ele = x_coor( IEN(ee, 1:n_en) );
   y_ele = y_coor( IEN(ee, 1:n_en) );
+  u_ele = disp( IEN(ee, 1:n_en) );
 
-  dx_dxi = 0; dx_deta = 0;
-  dy_dxi = 0; dy_deta = 0;
-
-  % gradients of shape functions (reference triangle)
-  for a = 1:3
-    [Na_xi, Na_eta] = Tri_grad(a, 0, 0);
-    dx_dxi  = dx_dxi  + x_ele(a)*Na_xi;
-    dx_deta = dx_deta + x_ele(a)*Na_eta;
-    dy_dxi  = dy_dxi  + y_ele(a)*Na_xi;
-    dy_deta = dy_deta + y_ele(a)*Na_eta;
-  end
-
-  J = dx_dxi*dy_deta - dx_deta*dy_dxi;
-
-  % L2, H1 integration over triangle
   for ll = 1:n_int
-
-    % map (xi,eta) → physical coordinates
     x_l = 0; y_l = 0;
-    uh  = 0;
-    uh_x = 0; uh_y = 0;
+    dx_dxi = 0.0; dx_deta = 0.0;
+    dy_dxi = 0.0; dy_deta = 0.0;
 
-    % compute shape functions and gradients
-    for a = 1:3
-      Na = Tri(a, xi(ll), eta(ll));
-      [Na_xi, Na_eta] = Tri_grad(a, xi(ll), eta(ll));
+    for aa = 1 : n_en
+      Na = Tri(aa, xi(ll), eta(ll));
+      [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
 
-      % physical coordinates
-      x_l = x_l + x_ele(a)*Na;
-      y_l = y_l + y_ele(a)*Na;
+      x_l = x_l + x_ele(aa) * Na;
+      y_l = y_l + y_ele(aa) * Na;
+      
+      dx_dxi  = dx_dxi  + x_ele(aa) * Na_xi;
+      dx_deta = dx_deta + x_ele(aa) * Na_eta;
+      dy_dxi  = dy_dxi  + y_ele(aa) * Na_xi;
+      dy_deta = dy_deta + y_ele(aa) * Na_eta;
+    end
 
-      % numerical solution uh
-      uh = uh + disp(nodes(a))*Na;
+    detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
 
-      % physical gradients of shape function
-      Na_x = ( Na_xi*dy_deta - Na_eta*dy_dxi ) / J;
-      Na_y = (-Na_xi*dx_deta + Na_eta*dx_dxi ) / J;
+    uh  = 0; uh_x = 0; uh_y = 0;
+    for aa = 1 : n_en
+      Na = Tri(aa, xi(ll), eta(ll));
+      [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
 
-      uh_x = uh_x + disp(nodes(a))*Na_x;
-      uh_y = uh_y + disp(nodes(a))*Na_y;
+      Na_x = ( Na_xi*dy_deta - Na_eta*dy_dxi ) / detJ;
+      Na_y = (-Na_xi*dx_deta + Na_eta*dx_dxi ) / detJ;
+
+      uh   = uh   + u_ele(aa) * Na;
+      uh_x = uh_x + u_ele(aa) * Na_x;
+      uh_y = uh_y + u_ele(aa) * Na_y;
     end
 
     % exact values
-    u  = exact(x_l, y_l);
-    ux = exact_x(x_l, y_l);
-    uy = exact_y(x_l, y_l);
+    u  = exact(   x_l, y_l );
+    ux = exact_x( x_l, y_l );
+    uy = exact_y( x_l, y_l );
 
     % accumulate error
-    L2_error = L2_error + weight(ll)*J * (uh - u)^2;
-    H1_error = H1_error + weight(ll)*J * ((uh_x - ux)^2 + (uh_y - uy)^2);
+    L2_error = L2_error + weight(ll)* detJ * (uh - u)^2;
+    H1_error = H1_error + weight(ll)* detJ * ((uh_x - ux)^2 + (uh_y - uy)^2);
   end
 end
 
