@@ -1,7 +1,7 @@
-function [qp, qw] = Gauss_tri(num_pts)
+function [xi, eta, qw] = Gauss_tri(num_pts)
 %GAUSS_TRIANGLE  Gauss quadrature on the reference triangle.
 %
-%   [qp, qw] = gauss_triangle(num_pts)
+%   [xi, eta, qw] = gauss_triangle(num_pts)
 %
 %   Input:
 %       num_pts : number of quadrature points
@@ -10,6 +10,8 @@ function [qp, qw] = Gauss_tri(num_pts)
 %   Output:
 %       qp : [num_pts x 3]  (r,s,t),
 %            r + s + t = 1
+%       xi : qp(:,1)
+%       eta: qp(:,2)
 %       qw : [num_pts x 1] weights
 
 qp = zeros(num_pts, 3);
@@ -270,5 +272,8 @@ switch num_pts
         error('gauss_triangle: num_pts = %d not implemented.', num_pts);
 end
 
-qw = 0.5 * qw;
+qw  = 0.5 * qw;
+xi  = qp(:,1);
+eta = qp(:,2);
+
 end
