@@ -1,11 +1,11 @@
 function val = Tri(aa, xi, eta)
 
 if aa == 1
-    val = xi;
+  val = xi;
 elseif aa == 2
-    val = eta;
+  val = eta;
 elseif aa == 3
-    val = 1.0 - xi - eta;
+  val = 1.0 - xi - eta;
 else
-    error('Error: value of a should be 1,2, or 3.');
+  error('Error: value of a should be 1,2, or 3.');
 end

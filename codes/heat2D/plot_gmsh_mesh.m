@@ -48,7 +48,7 @@ switch elemType
 end
 
 axis equal;
-xlabel('x'); 
+xlabel('x');
 ylabel('y');
 title(['Mesh plot: ', elemType]);
 
