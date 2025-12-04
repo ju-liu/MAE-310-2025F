@@ -5,7 +5,7 @@ clear all; clc;
 kappa = 1.0;
 
 % exact solution
-exact = @(x,y) x*x*(1-x)*y*(1-y);
+exact   = @(x,y) x*x*(1-x)*y*(1-y);
 exact_x = @(x,y) (2*x-3*x*x)*y*(1-y);
 exact_y = @(x,y) x*x*(1-x)*(1-2*y);
 
@@ -16,24 +16,24 @@ n_int = 3;
 [xi, eta, weight] = Gauss_tri(n_int);
 
 % load mesh
-mesh = read_gmsh_mesh('../../gmsh-files/square_2.m');
+mesh = read_gmsh_mesh('../../gmsh-files/square_100.m');
 
-IEN = mesh.tri;
+IEN    = mesh.tri;
 x_coor = mesh.coords(:,1);
 y_coor = mesh.coords(:,2);
-
-dir_nodes = unique(mesh.edge_dirichlet(:))';
-free_nodes = setdiff(1:n_np, dir_nodes);
 
 n_el = size(IEN, 1);
 n_en = size(IEN, 2);
 n_np = length(x_coor);
+
+dir_nodes  = unique(mesh.edge_dirichlet(:))';
+free_nodes = setdiff(1:n_np, dir_nodes);
+
 n_eq = length(free_nodes);
 
 % ID, and LM
 ID = zeros(n_np, 1);
 ID(free_nodes) = 1 : n_eq;
-
 LM = ID(IEN);
 
 % sparse matrix allocation
@@ -48,18 +48,79 @@ for ee = 1 : n_el
   f_ele = zeros(n_en, 1);
 
   for ll = 1 : n_int
-    x_l = 0.0;
+    x_l = 0.0; y_l = 0.0;
+    dx_dxi = 0.0; dx_deta = 0.0;
+    dy_dxi = 0.0; dy_deta = 0.0;
     for aa = 1 : n_en
       x_l = x_l + x_ele(aa) * Tri(aa, xi(ll), eta(ll));
+      y_l = y_l + y_ele(aa) * Tri(aa, xi(ll), eta(ll));
+      [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
+      dx_dxi = dx_dxi + x_ele(aa) * Na_xi;
+      dx_deta = dx_deta + x_ele(aa) * Na_eta;
+      dy_dxi = dy_dxi + y_ele(aa) * Na_xi;
+      dy_deta = dy_deta + y_ele(aa) * Na_eta;
+    end
+    detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
+
+    if detJ <= 0
+        error('Non-positive Jacobian at element %d, qp %d', ee, ll);
     end
 
+    for aa = 1 : n_en
+        Na = Tri(aa, xi(ll), eta(ll));
+        [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
+        Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
+        Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
+        f_ele(aa) = f_ele(aa) + weight(ll) * detJ * Na * f(x_l, y_l);
+        for bb = 1 : n_en
+            [Nb_xi, Nb_eta] = Tri_grad(bb, xi(ll), eta(ll));
+            Nb_x = (Nb_xi * dy_deta - Nb_eta * dy_dxi) / detJ;
+            Nb_y = (-Nb_xi * dx_deta + Nb_eta * dx_dxi) / detJ;
 
+            k_ele(aa,bb) = k_ele(aa,bb) + weight(ll)* detJ * ...
+                kappa * (Na_x*Nb_x + Na_y*Nb_y);
+        end
+    end
   end
 
+  for aa = 1 : n_en
+      PP = LM(ee, aa);
+      if PP > 0
+          F(PP) = F(PP) + f_ele(aa);
 
+          for bb = 1 : n_en
+              QQ = LM(ee, bb);
+              if QQ > 0
+                  K(PP, QQ) = K(PP, QQ) + k_ele(aa, bb);
+              else
+                  % modify F with the g boundary data
+              end
+          end
+      end
+  end
 end
 
+sol = K \ F;
 
+disp = zeros(n_np, 1);
+
+for ii = 1 : n_np
+    index = ID(ii);
+    if index > 0
+        disp(ii) = sol(index);
+    end
+end
+
+% visualize
+trisurf(IEN, x_coor, y_coor, disp);
+shading interp;
+colormap jet;
+axis equal;
+view(2);
+
+% error calculator
+L2_error = 0.0;
+H1_error = 0.0;
 
 
 
