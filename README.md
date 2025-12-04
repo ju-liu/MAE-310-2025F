@@ -26,9 +26,7 @@ Calculus, Linear algebra, and MATLAB programming are required.
 - [Assignment 5](hw/Homework-5.pdf)   Due: 2025/11/17
 - [Assignment 6](hw/Homework-6.pdf)   Due: 2025/12/01
 - [Assignment 7](hw/Homework-7.pdf)   Due: 2025/12/15
-
-### Assignments
-[Final project](Final-Project-2025.pdf) Due: 2026/01/12
+- [Final project](Final-Project-2025.pdf) Due: 2026/01/12
 
 ### References
 - The Finite Element Method: linear static and dynamic finite element analysis, T.J.R. Hughes, Dover 2000. [JD](https://item.jd.com/1130427437.html)
