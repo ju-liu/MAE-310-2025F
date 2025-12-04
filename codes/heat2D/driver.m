@@ -16,7 +16,7 @@ n_int = 3;
 [xi, eta, weight] = Gauss_tri(n_int);
 
 % load mesh
-mesh = read_gmsh_mesh('../../gmsh-files/square_100.m');
+mesh = read_gmsh_mesh('../../gmsh-files/square_200.m');
 
 IEN    = mesh.tri;
 x_coor = mesh.coords(:,1);
@@ -122,8 +122,56 @@ view(2);
 L2_error = 0.0;
 H1_error = 0.0;
 
+n_int = 19;
+[xi, eta, weight] = Gauss_tri(n_int);
 
+for ee = 1 : n_el
+  x_ele = x_coor(IEN(ee,:));
+  y_ele = y_coor(IEN(ee,:));
+  u_ele = disp(IEN(ee,:));
 
+  for ll = 1 : n_int
+    x_l = 0.0; y_l = 0.0;
+    dx_dxi = 0.0; dx_deta = 0.0;
+    dy_dxi = 0.0; dy_deta = 0.0;
+    for aa = 1 : n_en
+      x_l = x_l + x_ele(aa) * Tri(aa, xi(ll), eta(ll));
+      y_l = y_l + y_ele(aa) * Tri(aa, xi(ll), eta(ll));
+      [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
+      dx_dxi = dx_dxi + x_ele(aa) * Na_xi;
+      dx_deta = dx_deta + x_ele(aa) * Na_eta;
+      dy_dxi = dy_dxi + y_ele(aa) * Na_xi;
+      dy_deta = dy_deta + y_ele(aa) * Na_eta;
+    end
+    detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
+
+    uh = 0.0; uh_x = 0.0; uh_y = 0.0;
+    for aa = 1 : n_en
+        Na = Tri(aa, xi(ll), eta(ll));
+        [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
+        Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
+        Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
+
+        uh   = uh + u_ele(aa) * Na;
+        uh_x = uh_x + u_ele(aa) * Na_x;
+        uh_y = uh_y + u_ele(aa) * Na_y;
+    end
+
+    u  = exact(x_l, y_l);
+    ux = exact_x(x_l, y_l);
+    uy = exact_y(x_l, y_l);
+
+    L2_error = L2_error + weight(ll) * detJ * (uh - u)^2;
+    H1_error = H1_error + weight(ll) * detJ *...
+        ( (uh_x - ux)^2 + (uh_y - uy)^2 );
+  end
+end
+
+L2_error = sqrt(L2_error);
+H1_error = sqrt(H1_error);
+
+fprintf('L2 error = %.6e\n', L2_error);
+fprintf('H1 error = %.6e\n', H1_error);
 
 
 
