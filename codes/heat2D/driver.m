@@ -37,7 +37,7 @@ ID(free_nodes) = 1 : n_eq;
 LM = ID(IEN);
 
 % sparse matrix allocation
-K = spalloc(n_eq, n_eq, 9);
+K = spalloc(n_eq, n_eq, 9*n_eq);
 F = zeros(n_eq, 1);
 
 for ee = 1 : n_el
