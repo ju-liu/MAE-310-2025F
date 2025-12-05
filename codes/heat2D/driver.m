@@ -55,48 +55,47 @@ for ee = 1 : n_el
       x_l = x_l + x_ele(aa) * Tri(aa, xi(ll), eta(ll));
       y_l = y_l + y_ele(aa) * Tri(aa, xi(ll), eta(ll));
       [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
-      dx_dxi = dx_dxi + x_ele(aa) * Na_xi;
+      dx_dxi  = dx_dxi  + x_ele(aa) * Na_xi;
       dx_deta = dx_deta + x_ele(aa) * Na_eta;
-      dy_dxi = dy_dxi + y_ele(aa) * Na_xi;
+      dy_dxi  = dy_dxi  + y_ele(aa) * Na_xi;
       dy_deta = dy_deta + y_ele(aa) * Na_eta;
     end
     detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
 
     if detJ <= 0
-        error('Non-positive Jacobian at element %d, qp %d', ee, ll);
+      error('Non-positive Jacobian at element %d, qp %d', ee, ll);
     end
 
     for aa = 1 : n_en
-        Na = Tri(aa, xi(ll), eta(ll));
-        [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
-        Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
-        Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
-        f_ele(aa) = f_ele(aa) + weight(ll) * detJ * Na * f(x_l, y_l);
-        for bb = 1 : n_en
-            [Nb_xi, Nb_eta] = Tri_grad(bb, xi(ll), eta(ll));
-            Nb_x = (Nb_xi * dy_deta - Nb_eta * dy_dxi) / detJ;
-            Nb_y = (-Nb_xi * dx_deta + Nb_eta * dx_dxi) / detJ;
+      Na = Tri(aa, xi(ll), eta(ll));
+      [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
+      Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
+      Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
+      f_ele(aa) = f_ele(aa) + weight(ll) * detJ * Na * f(x_l, y_l);
+      for bb = 1 : n_en
+        [Nb_xi, Nb_eta] = Tri_grad(bb, xi(ll), eta(ll));
+        Nb_x = (Nb_xi * dy_deta - Nb_eta * dy_dxi) / detJ;
+        Nb_y = (-Nb_xi * dx_deta + Nb_eta * dx_dxi) / detJ;
 
-            k_ele(aa,bb) = k_ele(aa,bb) + weight(ll)* detJ * ...
-                kappa * (Na_x*Nb_x + Na_y*Nb_y);
-        end
+        k_ele(aa,bb) = k_ele(aa,bb) + weight(ll)* detJ * ...
+          kappa * (Na_x * Nb_x + Na_y * Nb_y);
+      end
     end
   end
 
   for aa = 1 : n_en
-      PP = LM(ee, aa);
-      if PP > 0
-          F(PP) = F(PP) + f_ele(aa);
-
-          for bb = 1 : n_en
-              QQ = LM(ee, bb);
-              if QQ > 0
-                  K(PP, QQ) = K(PP, QQ) + k_ele(aa, bb);
-              else
-                  % modify F with the g boundary data
-              end
-          end
+    PP = LM(ee, aa);
+    if PP > 0
+      F(PP) = F(PP) + f_ele(aa);
+      for bb = 1 : n_en
+        QQ = LM(ee, bb);
+        if QQ > 0
+          K(PP, QQ) = K(PP, QQ) + k_ele(aa, bb);
+        else
+          % modify F with the g boundary data
+        end
       end
+    end
   end
 end
 
@@ -105,10 +104,12 @@ sol = K \ F;
 disp = zeros(n_np, 1);
 
 for ii = 1 : n_np
-    index = ID(ii);
-    if index > 0
-        disp(ii) = sol(index);
-    end
+  index = ID(ii);
+  if index > 0
+    disp(ii) = sol(index);
+  else
+    % modify disp with g data
+  end
 end
 
 % visualize
@@ -138,23 +139,23 @@ for ee = 1 : n_el
       x_l = x_l + x_ele(aa) * Tri(aa, xi(ll), eta(ll));
       y_l = y_l + y_ele(aa) * Tri(aa, xi(ll), eta(ll));
       [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
-      dx_dxi = dx_dxi + x_ele(aa) * Na_xi;
+      dx_dxi  = dx_dxi  + x_ele(aa) * Na_xi;
       dx_deta = dx_deta + x_ele(aa) * Na_eta;
-      dy_dxi = dy_dxi + y_ele(aa) * Na_xi;
+      dy_dxi  = dy_dxi  + y_ele(aa) * Na_xi;
       dy_deta = dy_deta + y_ele(aa) * Na_eta;
     end
     detJ = dx_dxi * dy_deta - dx_deta * dy_dxi;
 
     uh = 0.0; uh_x = 0.0; uh_y = 0.0;
     for aa = 1 : n_en
-        Na = Tri(aa, xi(ll), eta(ll));
-        [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
-        Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
-        Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
+      Na = Tri(aa, xi(ll), eta(ll));
+      [Na_xi, Na_eta] = Tri_grad(aa, xi(ll), eta(ll));
+      Na_x = (Na_xi * dy_deta - Na_eta * dy_dxi) / detJ;
+      Na_y = (-Na_xi * dx_deta + Na_eta * dx_dxi) / detJ;
 
-        uh   = uh + u_ele(aa) * Na;
-        uh_x = uh_x + u_ele(aa) * Na_x;
-        uh_y = uh_y + u_ele(aa) * Na_y;
+      uh   = uh   + u_ele(aa) * Na;
+      uh_x = uh_x + u_ele(aa) * Na_x;
+      uh_y = uh_y + u_ele(aa) * Na_y;
     end
 
     u  = exact(x_l, y_l);
@@ -163,7 +164,7 @@ for ee = 1 : n_el
 
     L2_error = L2_error + weight(ll) * detJ * (uh - u)^2;
     H1_error = H1_error + weight(ll) * detJ *...
-        ( (uh_x - ux)^2 + (uh_y - uy)^2 );
+      ( (uh_x - ux)^2 + (uh_y - uy)^2 );
   end
 end
 
@@ -172,9 +173,5 @@ H1_error = sqrt(H1_error);
 
 fprintf('L2 error = %.6e\n', L2_error);
 fprintf('H1 error = %.6e\n', H1_error);
-
-
-
-
 
 % EOF
