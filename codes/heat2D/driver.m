@@ -5,19 +5,20 @@ clear all; clc;
 kappa = 1.0;
 
 % exact solution
-exact   = @(x,y) x*x*x*sin(y);
-exact_x = @(x,y) 3*x*x*sin(y);
-exact_y = @(x,y) x*x*x*cos(y);
-g       = @(x,y) exact(x,y);
+exact   = @(x,y) sin(x)*sin(y);
+exact_x = @(x,y) cos(x)*sin(y);
+exact_y = @(x,y) sin(x)*cos(y);
+g_data  = @(x,y) exact(x,y);
+h_data  = @(x,y) -kappa * cos(x)*sin(y);
 
-f = @(x,y) kappa * ( x*(x*x-6)*sin(y) );
+f = @(x,y) kappa * ( 2.0*sin(x)*sin(y) );
 
 % quadrature rule
 n_int = 3;
 [xi, eta, weight] = Gauss_tri(n_int);
 
 % load mesh
-mesh = read_gmsh_mesh('../../gmsh-files/square_3.m');
+mesh = read_gmsh_mesh('../../gmsh-files/square_50.m');
 
 IEN    = mesh.tri;
 x_coor = mesh.coords(:,1);
@@ -94,9 +95,40 @@ for ee = 1 : n_el
           K(PP, QQ) = K(PP, QQ) + k_ele(aa, bb);
         else
           nodeQ = IEN(ee, bb);
-          F(PP) = F(PP) - k_ele(aa,bb) * g(x_coor(nodeQ), y_coor(nodeQ));
+          F(PP) = F(PP) - k_ele(aa,bb) * g_data(x_coor(nodeQ), y_coor(nodeQ));
         end
       end
+    end
+  end
+end
+
+% Neumann boundary condition
+IEN_h   = mesh.edge_neumann;
+n_el_h  = size(IEN_h, 1);
+n_int_h = 3;
+[ss,ww] = Gauss_1D(n_int_h, -1, 1);
+
+for ee = 1 : n_el_h
+  node_1 = IEN_h(ee, 1); node_2 = IEN_h(ee, 2);
+
+  x1 = x_coor(node_1); x2 = x_coor(node_2);
+  y1 = y_coor(node_1); y2 = y_coor(node_2);
+
+  J = sqrt((x1-x2)^2 + (y1-y2)^2) / 2;
+  for ll = 1 : n_int_h
+    xx = PolyShape(1, 1, ss(ll), 0) * x1 + PolyShape(1, 2, ss(ll), 0) * x2;
+    yy = PolyShape(1, 1, ss(ll), 0) * y1 + PolyShape(1, 2, ss(ll), 0) * y2;
+
+    hh = h_data(xx, yy);
+
+    PP = ID(node_1);
+    if PP > 0
+      F(PP) = F(PP) + ww(ll) * J * PolyShape(1, 1, ss(ll), 0) * hh;
+    end
+
+    PP = ID(node_2);
+    if PP > 0
+      F(PP) = F(PP) + ww(ll) * J * PolyShape(1, 2, ss(ll), 0) * hh;
     end
   end
 end
@@ -110,7 +142,7 @@ for ii = 1 : n_np
   if index > 0
     disp(ii) = sol(index);
   else
-    disp(ii) = g(x_coor(ii), y_coor(ii));
+    disp(ii) = g_data(x_coor(ii), y_coor(ii));
   end
 end
 

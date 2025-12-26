@@ -8,7 +8,7 @@
 % the definite integral using sum(f.*w);
 %
 % Written by Greg von Winckel - 02/25/2004
-function [x,w] = Gauss(N,a,b)
+function [x,w] = Gauss_1D(N,a,b)
 N=N-1;
 N1=N+1; N2=N+2;
 
