@@ -17,7 +17,7 @@ n_int = 3;
 [xi, eta, weight] = Gauss_tri(n_int);
 
 % load mesh
-mesh = read_gmsh_mesh('../../gmsh-files/square_200.m');
+mesh = read_gmsh_mesh('../../gmsh-files/square_3.m');
 
 IEN    = mesh.tri;
 x_coor = mesh.coords(:,1);
