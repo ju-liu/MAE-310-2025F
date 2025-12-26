@@ -5,11 +5,12 @@ clear all; clc;
 kappa = 1.0;
 
 % exact solution
-exact   = @(x,y) x*x*(1-x)*y*(1-y);
-exact_x = @(x,y) (2*x-3*x*x)*y*(1-y);
-exact_y = @(x,y) x*x*(1-x)*(1-2*y);
+exact   = @(x,y) x*x*x*sin(y);
+exact_x = @(x,y) 3*x*x*sin(y);
+exact_y = @(x,y) x*x*x*cos(y);
+g       = @(x,y) exact(x,y);
 
-f = @(x,y) kappa * ( (6*x-2)*(y-y*y) + 2*x*x*(1-x) );
+f = @(x,y) kappa * ( x*(x*x-6)*sin(y) );
 
 % quadrature rule
 n_int = 3;
@@ -92,7 +93,8 @@ for ee = 1 : n_el
         if QQ > 0
           K(PP, QQ) = K(PP, QQ) + k_ele(aa, bb);
         else
-          % modify F with the g boundary data
+          nodeQ = IEN(ee, bb);
+          F(PP) = F(PP) - k_ele(aa,bb) * g(x_coor(nodeQ), y_coor(nodeQ));
         end
       end
     end
@@ -108,7 +110,7 @@ for ii = 1 : n_np
   if index > 0
     disp(ii) = sol(index);
   else
-    % modify disp with g data
+    disp(ii) = g(x_coor(ii), y_coor(ii));
   end
 end
 
