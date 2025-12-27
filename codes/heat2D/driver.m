@@ -105,30 +105,34 @@ end
 % Neumann boundary condition
 IEN_h   = mesh.edge_neumann;
 n_el_h  = size(IEN_h, 1);
+n_en_h  = 2;
 n_int_h = 3;
 [ss,ww] = Gauss_1D(n_int_h, -1, 1);
 
 for ee = 1 : n_el_h
-  node_1 = IEN_h(ee, 1); node_2 = IEN_h(ee, 2);
+  x_ele = x_coor(IEN_h(ee,:));
+  y_ele = y_coor(IEN_h(ee,:));
 
-  x1 = x_coor(node_1); x2 = x_coor(node_2);
-  y1 = y_coor(node_1); y2 = y_coor(node_2);
-
-  J = sqrt((x1-x2)^2 + (y1-y2)^2) / 2;
   for ll = 1 : n_int_h
-    xx = PolyShape(1, 1, ss(ll), 0) * x1 + PolyShape(1, 2, ss(ll), 0) * x2;
-    yy = PolyShape(1, 1, ss(ll), 0) * y1 + PolyShape(1, 2, ss(ll), 0) * y2;
+    x_l = 0.0; y_l = 0.0;
+    dx_ds = 0.0; dy_ds = 0.0;
+    for aa = 1 : n_en_h
+      x_l = x_l + PolyShape(1, aa, ss(ll), 0) * x_ele(aa);
+      y_l = y_l + PolyShape(1, aa, ss(ll), 0) * y_ele(aa);
 
-    hh = h_data(xx, yy);
-
-    PP = ID(node_1);
-    if PP > 0
-      F(PP) = F(PP) + ww(ll) * J * PolyShape(1, 1, ss(ll), 0) * hh;
+      dx_ds = dx_ds + PolyShape(1, aa, ss(ll), 1) * x_ele(aa);
+      dy_ds = dy_ds + PolyShape(1, aa, ss(ll), 1) * y_ele(aa);
     end
 
-    PP = ID(node_2);
-    if PP > 0
-      F(PP) = F(PP) + ww(ll) * J * PolyShape(1, 2, ss(ll), 0) * hh;
+    detJ = sqrt(dx_ds^2 + dy_ds^2);
+
+    hh = h_data(x_l, y_l);
+
+    for aa = 1 : n_en_h
+      PP = ID(IEN_h(ee,aa));
+      if PP > 0
+        F(PP) = F(PP) + ww(ll) * detJ * PolyShape(1, aa, ss(ll), 0) * hh;
+      end
     end
   end
 end
