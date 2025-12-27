@@ -5,20 +5,20 @@ clear all; clc;
 kappa = 1.0;
 
 % exact solution
-exact   = @(x,y) sin(x)*sin(y);
-exact_x = @(x,y) cos(x)*sin(y);
-exact_y = @(x,y) sin(x)*cos(y);
+exact   = @(x,y) sin(5*x)*cos(y);
+exact_x = @(x,y) 5*cos(5*x)*cos(y);
+exact_y = @(x,y) -sin(5*x)*sin(y);
 g_data  = @(x,y) exact(x,y);
-h_data  = @(x,y) -kappa * cos(x)*sin(y);
+h_data  = @(x,y) -kappa * 5*cos(5*x)*cos(y);
 
-f = @(x,y) kappa * ( 2.0*sin(x)*sin(y) );
+f = @(x,y) kappa * ( 26.0*sin(5*x)*cos(y) );
 
 % quadrature rule
 n_int = 3;
 [xi, eta, weight] = Gauss_tri(n_int);
 
 % load mesh
-mesh = read_gmsh_mesh('../../gmsh-files/square_50.m');
+mesh = read_gmsh_mesh('../../gmsh-files/square_200.m');
 
 IEN    = mesh.tri;
 x_coor = mesh.coords(:,1);
