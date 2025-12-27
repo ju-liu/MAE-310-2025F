@@ -38,7 +38,8 @@ Plane Surface(20) = {10};
 
 // Optional: physical groups
 Physical Surface("Domain") = {20};
-Physical Curve("Dirichlet") = {1,2,3,4};
+Physical Curve("Dirichlet") = {1,2};
+Physical Curve("Neumann") = {3,4};
 
 //---------------------------------------------------------------
 // Mesh options

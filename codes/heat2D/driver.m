@@ -9,7 +9,7 @@ exact   = @(x,y) sin(5*x)*cos(y);
 exact_x = @(x,y) 5*cos(5*x)*cos(y);
 exact_y = @(x,y) -sin(5*x)*sin(y);
 g_data  = @(x,y) exact(x,y);
-h_data  = @(x,y) -kappa * 5*cos(5*x)*cos(y);
+h_data  = @(x,y) kappa * (exact_x(x,y)*x+exact_y(x,y)*y)/sqrt(x^2+y^2);
 
 f = @(x,y) kappa * ( 26.0*sin(5*x)*cos(y) );
 
@@ -18,7 +18,7 @@ n_int = 3;
 [xi, eta, weight] = Gauss_tri(n_int);
 
 % load mesh
-mesh = read_gmsh_mesh('../../gmsh-files/square_200.m');
+mesh = read_gmsh_mesh('../../gmsh-files/circle_8.m');
 
 IEN    = mesh.tri;
 x_coor = mesh.coords(:,1);
